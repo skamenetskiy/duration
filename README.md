@@ -1,4 +1,4 @@
-Duration [![Build](https://travis-ci.org/senseyeio/duration.svg?branch=master)](https://travis-ci.org/senseyeio/duration) [![Coverage](https://coveralls.io/repos/github/senseyeio/duration/badge.svg?branch=master)](https://coveralls.io/github/senseyeio/duration?branch=master) [![Go Report Card](https://goreportcard.com/badge/senseyeio/duration)](https://goreportcard.com/report/senseyeio/duration) [![GoDoc](https://godoc.org/github.com/senseyeio/duration?status.svg)](https://godoc.org/github.com/senseyeio/duration)
+Duration [![Test](https://github.com/skamenetskiy/duration/actions/workflows/test.yml/badge.svg)](https://github.com/skamenetskiy/duration/actions/workflows/test.yml) [![Go Report Card](https://goreportcard.com/badge/skamenetskiy/duration)](https://goreportcard.com/report/skamenetskiy/duration) [![GoDoc](https://godoc.org/github.com/skamenetskiy/duration?status.svg)](https://godoc.org/github.com/skamenetskiy/duration)
 =======
 Parse ISO8601 duration strings, and use to shift dates/times.
 
@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/senseyeio/duration"
+	"github.com/skamenetskiy/duration"
 )
 
 func main() {
@@ -39,7 +39,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/senseyeio/duration"
+	"github.com/skamenetskiy/duration"
 )
 
 func main() {

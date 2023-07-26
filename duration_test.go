@@ -1,11 +1,9 @@
-package duration_test
+package duration
 
 import (
 	"encoding/json"
 	"testing"
 	"time"
-
-	"github.com/senseyeio/duration"
 )
 
 const dateLayout = "Jan 2, 2006 at 03:04:05"
@@ -21,19 +19,19 @@ func makeTime(t *testing.T, s string) time.Time {
 func TestCanShift(t *testing.T) {
 	cases := []struct {
 		from     string
-		duration duration.Duration
+		duration Duration
 		want     string
 	}{
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{}, "Jan 1, 2018 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{Y: 1}, "Jan 1, 2019 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{M: 1}, "Feb 1, 2018 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{M: 2}, "Mar 1, 2018 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{W: 1}, "Jan 8, 2018 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{D: 1}, "Jan 2, 2018 at 00:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{TH: 1}, "Jan 1, 2018 at 01:00:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{TM: 1}, "Jan 1, 2018 at 00:01:00"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{TS: 1}, "Jan 1, 2018 at 00:00:01"},
-		{"Jan 1, 2018 at 00:00:00", duration.Duration{
+		{"Jan 1, 2018 at 00:00:00", Duration{}, "Jan 1, 2018 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{Y: 1}, "Jan 1, 2019 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{M: 1}, "Feb 1, 2018 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{M: 2}, "Mar 1, 2018 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{W: 1}, "Jan 8, 2018 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{D: 1}, "Jan 2, 2018 at 00:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{TH: 1}, "Jan 1, 2018 at 01:00:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{TM: 1}, "Jan 1, 2018 at 00:01:00"},
+		{"Jan 1, 2018 at 00:00:00", Duration{TS: 1}, "Jan 1, 2018 at 00:00:01"},
+		{"Jan 1, 2018 at 00:00:00", Duration{
 			Y:  10,
 			M:  5,
 			D:  8,
@@ -68,7 +66,7 @@ func TestCanMaintainHourThroughDST(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	sut := duration.Duration{D: 1}
+	sut := Duration{D: 1}
 	for d := 0; d < 365; d++ {
 		if got := current.Hour(); got != 0 {
 			t.Fatalf("Day %d: want=0, got=%d", d, got)
@@ -80,21 +78,32 @@ func TestCanMaintainHourThroughDST(t *testing.T) {
 func TestCanParse(t *testing.T) {
 	cases := []struct {
 		from string
-		want duration.Duration
+		want Duration
 	}{
-		{"P1Y", duration.Duration{Y: 1}},
-		{"P1M", duration.Duration{M: 1}},
-		{"P2M", duration.Duration{M: 2}},
-		{"P1W", duration.Duration{W: 1}},
-		{"P1D", duration.Duration{D: 1}},
-		{"PT1H", duration.Duration{TH: 1}},
-		{"PT1M", duration.Duration{TM: 1}},
-		{"PT1S", duration.Duration{TS: 1}},
-		{"P10Y5M8DT5H10M6S", duration.Duration{Y: 10, M: 5, D: 8, TH: 5, TM: 10, TS: 6}},
+		{"P1Y", Duration{Y: 1}},
+		{"P-1Y", Duration{Y: -1}},
+		{"P1M", Duration{M: 1}},
+		{"P-1M", Duration{M: -1}},
+		{"P2M", Duration{M: 2}},
+		{"P-2M", Duration{M: -2}},
+		{"P1W", Duration{W: 1}},
+		{"P-1W", Duration{W: -1}},
+		{"P1D", Duration{D: 1}},
+		{"P-1D", Duration{D: -1}},
+		{"PT1H", Duration{TH: 1}},
+		{"PT-1H", Duration{TH: -1}},
+		{"PT1M", Duration{TM: 1}},
+		{"PT-1M", Duration{TM: -1}},
+		{"PT1S", Duration{TS: 1}},
+		{"PT-1S", Duration{TS: -1}},
+		{"PT-24H", Duration{TH: -24}},
+		{"P10Y5M8DT5H10M6S", Duration{Y: 10, M: 5, D: 8, TH: 5, TM: 10, TS: 6}},
+		{"P-10Y5M8DT5H10M6S", Duration{Y: -10, M: 5, D: 8, TH: 5, TM: 10, TS: 6}},
+		{"P-10Y-5M8DT5H10M6S", Duration{Y: -10, M: -5, D: 8, TH: 5, TM: 10, TS: 6}},
 	}
 
 	for k, c := range cases {
-		got, err := duration.ParseISO8601(c.from)
+		got, err := ParseISO8601(c.from)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -113,7 +122,7 @@ func TestCanRejectBadString(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		_, err := duration.ParseISO8601(c)
+		_, err := ParseISO8601(c)
 		if err == nil {
 			t.Fatalf("%s: Expected error, got none", c)
 		}
@@ -121,7 +130,7 @@ func TestCanRejectBadString(t *testing.T) {
 }
 
 func TestCanStringifyZeroValue(t *testing.T) {
-	sut := duration.Duration{}
+	sut := Duration{}
 	want := "P0D"
 	got := sut.String()
 	if want != got {
@@ -141,7 +150,7 @@ func TestCanStringify(t *testing.T) {
 		"P1Y2M3W4DT5H6M7S",
 	}
 	for _, want := range cases {
-		sut, err := duration.ParseISO8601(want)
+		sut, err := ParseISO8601(want)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -154,7 +163,7 @@ func TestCanStringify(t *testing.T) {
 
 func TestCanMarshalJSON(t *testing.T) {
 	s := "P1Y2M3W4DT5H6M7S"
-	sut, _ := duration.ParseISO8601(s)
+	sut, _ := ParseISO8601(s)
 
 	b, err := json.Marshal(sut)
 	if err != nil {
@@ -170,14 +179,14 @@ func TestCanMarshalJSON(t *testing.T) {
 
 func TestCanUnmarshalJSON(t *testing.T) {
 	j := []byte(`"P1Y2M3W4DT5H6M7S"`)
-	var got duration.Duration
+	var got Duration
 	err := json.Unmarshal(j, &got)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	s := "P1Y2M3W4DT5H6M7S"
-	want, _ := duration.ParseISO8601(s)
+	want, _ := ParseISO8601(s)
 
 	if got != want {
 		t.Fatalf("want=%+v, got=%+v", want, got)
@@ -186,7 +195,7 @@ func TestCanUnmarshalJSON(t *testing.T) {
 
 func TestCanRejectDurationInJSON(t *testing.T) {
 	j := []byte(`"PZY"`)
-	var got duration.Duration
+	var got Duration
 	err := json.Unmarshal(j, &got)
 	if err == nil {
 		t.Fatal("expected error, got none")
@@ -195,7 +204,7 @@ func TestCanRejectDurationInJSON(t *testing.T) {
 
 func TestCanRejectBadJSON(t *testing.T) {
 	j := []byte(`{"foo":"bar"}`)
-	var got duration.Duration
+	var got Duration
 	err := json.Unmarshal(j, &got)
 	if err == nil {
 		t.Fatal("expected error, got none")

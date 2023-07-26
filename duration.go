@@ -4,7 +4,6 @@ package duration
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"regexp"
@@ -25,7 +24,7 @@ type Duration struct {
 	TS int
 }
 
-var pattern = regexp.MustCompile(`^P((?P<year>\d+)Y)?((?P<month>\d+)M)?((?P<week>\d+)W)?((?P<day>\d+)D)?(T((?P<hour>\d+)H)?((?P<minute>\d+)M)?((?P<second>\d+)S)?)?$`)
+var pattern = regexp.MustCompile(`^P((?P<year>-?\d+)Y)?((?P<month>-?\d+)M)?((?P<week>-?\d+)W)?((?P<day>-?\d+)D)?(T((?P<hour>-?\d+)H)?((?P<minute>-?\d+)M)?((?P<second>-?\d+)S)?)?$`)
 
 // ParseISO8601 parses an ISO8601 duration string.
 func ParseISO8601(from string) (Duration, error) {
@@ -35,7 +34,7 @@ func ParseISO8601(from string) (Duration, error) {
 	if pattern.MatchString(from) {
 		match = pattern.FindStringSubmatch(from)
 	} else {
-		return d, errors.New("could not parse duration string")
+		return d, fmt.Errorf("could not parse duration string %s", from)
 	}
 
 	for i, name := range pattern.SubexpNames() {
